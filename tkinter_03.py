@@ -1,4 +1,5 @@
-#encoding: UTF-8
+# encoding: UTF-8
+# Authors: Luis / Bobby
 
 from tkinter import *
 from tkinter import messagebox, filedialog
@@ -25,7 +26,6 @@ def multiplyText(A, B):
 # auxiliary methods for strassen()
 
 def matrixAdd(A,B):
-    print("type:",type(A))
     rows = len(A)
     columns = len(A[0])
     C = [[0 for j in range(columns)] for i in range(rows)]
@@ -95,7 +95,6 @@ def strassen(A,B):
         # Now calculate C11, C12, C21 and C22
         # c11 = m1 + m4 - m5 + m7
         c11 =  matrixAdd(matrixSubstract(matrixAdd(m1,m4),m5), m7)
-        print(c11)
         c12 = matrixAdd(m3, m5)
         c21 = matrixAdd(m2, m4)
         c22 = matrixAdd(matrixAdd(matrixSubstract(m1, m2), m3), m6)
@@ -108,7 +107,6 @@ def strassen(A,B):
                 C[i][j+shift] = c12[i][j]
                 C[i+shift][j] = c21[i][j]
                 C[i+shift][j+shift] = c22[i][j]
-
         return C
 
 
@@ -117,6 +115,7 @@ def multiplyMatrices():
     # we DON'T want home window at the very top anymore
     window.attributes('-topmost', False)
 
+    # open matrix 1
     pathA = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"),      # path to file 1
                                                      ("All files", "*.*")))
     matrixA = open(pathA, 'r').read().splitlines()
@@ -126,7 +125,7 @@ def multiplyMatrices():
     #print(A)
     messagebox.showinfo("Success", "Matrix A loaded")
 
-
+    # open matrix 2
     pathB = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"),      # path to file 2
                                                      ("All files", "*.*")))
     matrixB = open(pathB, 'r').read().splitlines()
@@ -136,14 +135,16 @@ def multiplyMatrices():
     #print(B)
     messagebox.showinfo("Success", "Matrix B loaded")
 
-    """
-    lógica para las multiplicaciones
-    multiplyText(A,B)
-    multiplyStrassen(A,B)
-    """
-    # tests
-    print(multiplyText(A,B))
-    print(strassen(A,B))
+    if len(A[0]) != len(B):
+        print("Can't have multiplication!")
+        exit()
+
+    #print("Basic", multiplyText(A, B))
+
+    if len(A) != len(A[0]):
+        print("Strassen's Algorithm requires two square matrixes")
+        exit()
+
 
     textInMatForm = ''
     for mat in multiplyText(A,B):
@@ -153,11 +154,25 @@ def multiplyMatrices():
     for mat in strassen(A,B):
         strassenInMatForm = strassenInMatForm + str(mat) + "\n"
 
-    # test
-    print(textInMatForm,type(textInMatForm))
-    print("\t------------------------")
-    print(strassenInMatForm,type(strassenInMatForm))
-    
+
+    # print resulting matrices to the console
+    print("Textbook matrix multiplication:")
+    print(textInMatForm)
+    print("Strassen's algorithm matrix multiplication:")
+    print(strassenInMatForm)
+
+    # write on the file (if we decide to take this approach)
+    salida = open("matrices.txt", "w", encoding="UTF-8")
+    salida.write("\n***In order for the matrices to display properly, it is recommended to make the TextEdit or other\n"
+                 "window where you're watching them as large as you can on your computer monitor.\n")
+    salida.write("\nMatrix multiplication by textbook:\n")
+    salida.write(textInMatForm)
+    salida.write("\n\t--------------------------\n\n")
+    salida.write("Matrix multiplication by Strassen's algorithm:\n")
+    salida.write(strassenInMatForm)
+    salida.close()
+
+
 
     solutionWindow = Tk()
     solutionWindow.title("Solutions")
@@ -165,7 +180,6 @@ def multiplyMatrices():
     ANCHO = 1000
     ALTO = 840
     solutionWindow.attributes('-topmost', True)
-
 
     tagTextbook = Label(solutionWindow, text="Textbook solution", justify = LEFT).grid(row = 1, column = 1)
     tagSolTextbook = Label(solutionWindow, text=textInMatForm).grid(row = 2, column = 1)
